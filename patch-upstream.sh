@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/bash -x
 set -e
 : <<'END_DOCUMENTATION'
 `patch-upstream.sh`
@@ -13,8 +13,6 @@ END_DOCUMENTATION
 # Run unit tests on ADOT lambdacomponents
 make --directory=adot/collector/lambdacomponents
 
-# Patch some upstream components with ADOT specific components
-cp -rf adot/* opentelemetry-lambda/
 
 # Get current repo path
 CURRENT_DIR=$PWD
@@ -29,7 +27,10 @@ PATCH_OTEL_VERSION="../../OTEL_Version.patch"
 if [ -f $PATCH_OTEL_VERSION ]; then
     patch -p2 < $PATCH_OTEL_VERSION;
 fi
-
+cd ../../
+# Patch some upstream components with ADOT specific components
+cp -rf adot/* opentelemetry-lambda/
+cd -
 # patch collector startup to remove HTTP and S3 confmap providers
 # and set ADOT-specific BuildInfo
 patch -p2 < ../../collector.patch
